@@ -1,0 +1,11 @@
+{
+  "payment": "atm",
+  "payer": "@一個名字非常非常長的打賞人ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789",
+  "items": [
+    { "to": "@<b>不該變粗體</b>", "name": "客製打賞", "qty": 12, "amount": 123456 },
+    { "to": "@第二位陪陪", "toShort": "第二位", "name": "語音陪玩（一小時）", "qty": 1, "amount": 300 },
+    { "to": "@第三位陪陪", "name": "客製打賞", "qty": 3, "amount": 50 }
+  ],
+  "total": 12345678,
+  "time": "今天 上午 05:24"
+}

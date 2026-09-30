@@ -1,0 +1,18 @@
+{
+  "shop": "𝓐𝓢",
+  "payment": "crypto",
+  "payer": "@Лиса🦊",
+  "items": [
+    {
+      "to": "@𝓐𝓢.陪玩小羽|ON AIR!",
+      "toShort": "小羽",
+      "name": "客製打賞",
+      "qty": 5,
+      "amount": 1100
+    }
+  ],
+  "unit": "ASD",
+  "total": 35.5,
+  "time": "2026-09-30T21:08:00+08:00",
+  "note": "感謝您的支持"
+}

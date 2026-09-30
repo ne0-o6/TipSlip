@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G 粉彩可愛</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+  html, body { margin: 0; background: transparent; }
+  [hidden] { display: none !important; }
+  p, h1, ul { margin: 0; }
+
+  #receipt {
+    --accent: #c92f63;
+    --soft: #f9e6ec;
+    --line: #ecb6c8;
+    --paper: #fffafb;
+    --ink: #4a2e3a;
+    --ink-soft: #8a5a6c;
+    --sans: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+    --round: "Quicksand", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+
+    width: 400px;
+    box-sizing: border-box;
+    padding: 14px;
+    border-radius: 30px;
+    background: var(--soft);
+    color: var(--ink);
+    font: 14px/1.55 var(--sans);
+  }
+
+  .inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px 20px 20px;
+    border: 2px dashed var(--line);
+    border-radius: 22px;
+    background: var(--paper);
+  }
+
+  .head { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+  .title-row { display: flex; align-items: center; gap: 8px; color: var(--accent); }
+  .title { padding: 6px 20px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 17px; font-weight: 900; line-height: 1.4; letter-spacing: .14em; }
+  .subtitle { color: var(--ink-soft); font: 700 12px/1.5 var(--round); letter-spacing: .2em; }
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--soft);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .status svg { flex: none; }
+
+  .tile,
+  .details { padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 18px; background: #fff; }
+  .tile { display: flex; align-items: center; gap: 12px; }
+  .avatar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--soft);
+    color: var(--accent);
+  }
+  .tile-body { min-width: 0; }
+  .label { color: var(--ink-soft); font-size: 12px; }
+  .name { font-weight: 700; overflow-wrap: anywhere; }
+
+  .details > .label { margin-bottom: 4px; }
+  .groups { display: flex; flex-direction: column; gap: 8px; }
+  .group-to { color: var(--accent); font-size: 12px; font-weight: 700; overflow-wrap: anywhere; }
+  .items { display: flex; flex-direction: column; gap: 2px; padding: 0; list-style: none; }
+  .item { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .item-name { font-weight: 700; overflow-wrap: anywhere; }
+  .item-qty { margin-left: 4px; font-family: var(--round); }
+  .item-amount { flex: none; font: 700 14px var(--round); white-space: nowrap; }
+  .empty { color: var(--ink-soft); }
+
+  .total { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 20px; background: var(--accent); color: #fff; }
+  .total-label { flex: none; font-weight: 900; letter-spacing: .14em; }
+  .total-amount { flex: 1; min-width: 0; font: 700 36px/1 var(--round); text-align: right; }
+  .balance { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 6px; color: var(--ink-soft); font-size: 13px; }
+  .balance-amount { color: var(--ink); font: 700 14px var(--round); white-space: nowrap; }
+
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 2px dotted var(--line);
+    color: var(--ink-soft);
+    font-size: 12px;
+  }
+  .note { color: var(--accent); font-weight: 700; letter-spacing: .12em; }
+</style>
+</head>
+<body>
+<article id="receipt">
+  <div class="inner">
+    <header class="head">
+      <div class="title-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.2 0 3.7 1.3 5.4 3.2 1.7-1.9 3.2-3.2 5.4-3.2 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg>
+        <h1 class="title">打賞收據</h1>
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.2 0 3.7 1.3 5.4 3.2 1.7-1.9 3.2-3.2 5.4-3.2 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg>
+      </div>
+      <p class="subtitle"><span data-if="shop"><span data-text="shop"></span> · </span>TIP RECEIPT</p>
+      <p class="status" data-if="status">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        <span data-text="status"></span>
+      </p>
+    </header>
+
+    <div class="tile" data-if="payer">
+      <span class="avatar" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c1.4-3.6 4.2-5.5 7.5-5.5s6.1 1.9 7.5 5.5"/></svg>
+      </span>
+      <div class="tile-body">
+        <p class="label">打賞人</p>
+        <p class="name" data-text="payer"></p>
+      </div>
+    </div>
+
+    <template data-each="recipients">
+      <div class="tile">
+        <span class="avatar" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 20s-6.5-4-8.3-8C2.4 9 4.2 5.8 7.3 5.8c1.9 0 3.2 1.1 4.7 2.8 1.5-1.7 2.8-2.8 4.7-2.8 3.1 0 4.9 3.2 3.6 6.2C18.5 16 12 20 12 20z"/></svg>
+        </span>
+        <div class="tile-body">
+          <p class="label">受賞陪陪</p>
+          <p class="name" data-text="name"></p>
+        </div>
+      </div>
+    </template>
+
+    <section class="details">
+      <p class="label">打賞明細</p>
+      <div class="groups">
+        <template data-each="groups">
+          <div class="group">
+            <p class="group-to" data-if="multi" data-text="short"></p>
+            <ul class="items">
+              <template data-each="items">
+                <li class="item">
+                  <span class="item-name"><span data-text="name"></span><span class="item-qty" data-if="qty" data-text="qty"></span></span>
+                  <span class="item-amount" data-text="amount"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </template>
+      </div>
+      <p class="empty" data-if="noItems">（無明細）</p>
+    </section>
+
+    <div class="total" data-if="total">
+      <span class="total-label">總金額</span>
+      <span class="total-amount" data-fit="20" data-text="total"></span>
+    </div>
+    <div class="balance" data-if="balance">
+      <span>扣款後餘額</span>
+      <span class="balance-amount" data-text="balance"></span>
+    </div>
+
+    <footer class="foot">
+      <time data-text="time.text" data-attr="datetime:time.iso"></time>
+      <span class="note" data-if="note" data-text="note"></span>
+    </footer>
+  </div>
+</article>
+<script src="../_shared/receipt-kit.js"></script>
+</body>
+</html>

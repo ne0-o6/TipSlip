@@ -1,0 +1,32 @@
+{
+  "shop": "𝓐𝓢",
+  "payment": "jkopay",
+  "payer": "@Лиса🦊",
+  "items": [
+    {
+      "to": "@𝓐𝓢.陪玩小羽|ON AIR!",
+      "toShort": "小羽",
+      "name": "客製打賞",
+      "qty": 2,
+      "amount": 440
+    },
+    {
+      "to": "@𝓐𝓢.店長 | 星野 -專屬客服/ON AIR!",
+      "toShort": "星野",
+      "name": "客製打賞",
+      "qty": 1,
+      "amount": 220
+    },
+    {
+      "to": "@𝓐𝓢.店長 | 星野 -專屬客服/ON AIR!",
+      "toShort": "星野",
+      "name": "語音陪玩（一小時）",
+      "qty": 3,
+      "amount": 900
+    }
+  ],
+  "unit": "ASD",
+  "total": 1560,
+  "time": "2026-09-30T04:56:00+08:00",
+  "note": "感謝您的支持"
+}

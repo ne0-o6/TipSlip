@@ -1,0 +1,21 @@
+{
+  "name": "tip-receipt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Render tip receipts as PNG images for chat bots",
+  "type": "module",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "templates": "node src/cli.mjs list",
+    "render": "node src/cli.mjs render",
+    "samples": "node scripts/render-samples.mjs",
+    "test": "node --test",
+    "docs:images": "node scripts/build-readme-assets.mjs"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.12.0"
+  }
+}

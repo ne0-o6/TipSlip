@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A 熱感紙收據</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+  html, body { margin: 0; background: transparent; }
+  [hidden] { display: none !important; }
+  p, h1, ol, ul { margin: 0; }
+
+  #receipt {
+    --paper-top: #fcfaf5;
+    --paper-bottom: #f6f1e5;
+    --ink: #221f1a;
+    --ink-soft: #655d50;
+    --rule: #c3b8a3;
+    --accent: #b3261e;
+    --tooth: 8px;
+    --sans: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+    --mono: "IBM Plex Mono", Consolas, "Noto Sans TC", "Microsoft JhengHei", monospace;
+
+    width: 400px;
+    padding: var(--tooth) 0;
+    color: var(--ink);
+    font: 14px/1.55 var(--sans);
+  }
+
+  .paper {
+    position: relative;
+    padding: 28px 28px 26px;
+    background: linear-gradient(var(--paper-top), var(--paper-bottom));
+  }
+  .paper::before,
+  .paper::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: var(--tooth);
+    background-size: calc(var(--tooth) * 2) var(--tooth);
+    background-repeat: repeat-x;
+  }
+  .paper::before {
+    bottom: calc(100% - 1px);
+    background-image: conic-gradient(from 135deg at 50% 0, var(--paper-top) 0 90deg, transparent 90deg);
+  }
+  .paper::after {
+    top: calc(100% - 1px);
+    background-image: conic-gradient(from -45deg at 50% 100%, var(--paper-bottom) 0 90deg, transparent 90deg);
+  }
+
+  .stamp {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    box-sizing: border-box;
+    border: 4px double var(--accent);
+    border-radius: 50%;
+    color: var(--accent);
+    line-height: 1.15;
+    opacity: .8;
+    transform: rotate(-14deg);
+  }
+  .stamp b { font-size: 15px; letter-spacing: .08em; }
+  .stamp small { padding-left: .28em; font: 700 10px/1.3 var(--mono); letter-spacing: .28em; }
+
+  .head { text-align: center; }
+  .shop { margin-bottom: 8px; font-size: 30px; line-height: 1.1; }
+  .title { padding-left: .32em; font-size: 20px; font-weight: 700; line-height: 1.5; letter-spacing: .32em; }
+  .subtitle { margin-top: 4px; padding-left: .4em; color: var(--ink-soft); font: 11px/1.4 var(--mono); letter-spacing: .4em; }
+
+  .status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    padding: 7px 12px;
+    border: 1.5px solid var(--accent);
+    border-radius: 6px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: .06em;
+  }
+  .status-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .rule { margin: 18px 0; border: 0; border-top: 1.5px dashed var(--rule); }
+  .label { color: var(--ink-soft); font-size: 12px; letter-spacing: .14em; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+  .row > .label { flex: none; }
+  .value { font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+
+  .recipients { margin-top: 14px; }
+  .recipients .label,
+  .details .label { margin-bottom: 6px; }
+  .recipient-list { display: flex; flex-direction: column; gap: 4px; padding: 0; list-style: none; }
+  .recipient-list li { display: flex; align-items: baseline; gap: 8px; font-weight: 700; overflow-wrap: anywhere; }
+  .recipient-index { flex: none; width: 16px; color: var(--ink-soft); font: 12px var(--mono); }
+
+  .groups { display: flex; flex-direction: column; gap: 12px; }
+  .group-to { margin-bottom: 1px; color: var(--ink-soft); font-size: 13px; overflow-wrap: anywhere; }
+  .items { display: flex; flex-direction: column; gap: 2px; padding: 0; list-style: none; }
+  .item { display: flex; align-items: baseline; gap: 6px; }
+  .item-name { font-weight: 700; overflow-wrap: anywhere; }
+  .item-qty { flex: none; font-family: var(--mono); }
+  .leader { flex: 1; min-width: 16px; border-bottom: 1.5px dotted var(--rule); transform: translateY(-4px); }
+  .item-amount { flex: none; font-family: var(--mono); font-weight: 700; white-space: nowrap; }
+  .empty { color: var(--ink-soft); }
+
+  .summary { margin-top: 18px; padding-top: 14px; border-top: 3px double var(--ink); }
+  .total > .label { color: var(--ink); font-size: 14px; font-weight: 700; letter-spacing: .24em; }
+  .total-amount { flex: 1; min-width: 0; font: 700 32px/1.1 var(--mono); text-align: right; }
+  .balance { margin-top: 8px; }
+  .balance .value { color: var(--ink-soft); font-family: var(--mono); font-weight: 400; }
+
+  .foot { text-align: center; }
+  .time { font: 13px/1.5 var(--mono); }
+  .note { margin-top: 6px; color: var(--ink-soft); font-size: 12px; letter-spacing: .24em; }
+</style>
+</head>
+<body>
+<article id="receipt">
+  <div class="paper">
+    <div class="stamp" aria-hidden="true"><b>已付款</b><small>PAID</small></div>
+
+    <header class="head">
+      <p class="shop" data-if="shop" data-text="shop"></p>
+      <h1 class="title">打賞收據</h1>
+      <p class="subtitle">TIP RECEIPT</p>
+    </header>
+    <p class="status" data-if="status">
+      <span class="status-icon" aria-hidden="true">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fcfaf5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </span>
+      <span data-text="status"></span>
+    </p>
+
+    <hr class="rule">
+
+    <div class="row" data-if="payer">
+      <span class="label">打賞人</span>
+      <span class="value" data-text="payer"></span>
+    </div>
+    <div class="recipients" data-if="recipients">
+      <p class="label">受賞陪陪</p>
+      <ol class="recipient-list">
+        <template data-each="recipients">
+          <li><span class="recipient-index" data-text="index"></span><span data-text="name"></span></li>
+        </template>
+      </ol>
+    </div>
+
+    <hr class="rule">
+
+    <section class="details">
+      <p class="label">打賞明細</p>
+      <div class="groups">
+        <template data-each="groups">
+          <div class="group">
+            <p class="group-to" data-if="to" data-text="to"></p>
+            <ul class="items">
+              <template data-each="items">
+                <li class="item">
+                  <span class="item-name" data-text="name"></span>
+                  <span class="item-qty" data-if="qty" data-text="qty"></span>
+                  <span class="leader" aria-hidden="true"></span>
+                  <span class="item-amount" data-text="amount"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </template>
+      </div>
+      <p class="empty" data-if="noItems">（無明細）</p>
+    </section>
+
+    <div class="summary">
+      <div class="row total" data-if="total">
+        <span class="label">總金額</span>
+        <strong class="total-amount" data-fit="20" data-text="total"></strong>
+      </div>
+      <div class="row balance" data-if="balance">
+        <span class="label">扣款後餘額</span>
+        <span class="value" data-text="balance"></span>
+      </div>
+    </div>
+
+    <hr class="rule">
+
+    <footer class="foot">
+      <time class="time" data-text="time.text" data-attr="datetime:time.iso"></time>
+      <p class="note" data-if="note" data-text="note"></p>
+    </footer>
+  </div>
+</article>
+<script src="../_shared/receipt-kit.js"></script>
+</body>
+</html>

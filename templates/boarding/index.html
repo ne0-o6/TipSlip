@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>J 登機證</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+  html, body { margin: 0; background: transparent; }
+  [hidden] { display: none !important; }
+  p, h1 { margin: 0; }
+
+  #receipt {
+    --paper: #fdfcf9;
+    --ink: #1b2230;
+    --ink-soft: #5d6675;
+    --rule: #d5d9e0;
+    --accent: #1e3a5f;
+    --band: 52px;
+    --stub: 250px;
+    --notch: 12px;
+    --notch-x: calc(100% - var(--stub) + 1px);
+    --sans: "Barlow Semi Condensed", "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+
+    display: flex;
+    width: 840px;
+    border-radius: 16px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 14px/1.5 var(--sans);
+    mask-image:
+      radial-gradient(circle var(--notch) at var(--notch-x) 0, transparent calc(var(--notch) - .5px), #000 var(--notch)),
+      radial-gradient(circle var(--notch) at var(--notch-x) 100%, transparent calc(var(--notch) - .5px), #000 var(--notch));
+    mask-composite: intersect;
+  }
+
+  .band {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    height: var(--band);
+    box-sizing: border-box;
+    padding: 0 28px;
+    background: var(--accent);
+    color: #fff;
+  }
+  .band-title { display: flex; align-items: center; gap: 10px; }
+  .kicker { font-size: 15px; font-weight: 700; letter-spacing: .24em; }
+  .title { font-size: 14px; font-weight: 700; letter-spacing: .14em; }
+  .shop { font-size: 20px; line-height: 1; }
+
+  .main { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+  .body { display: flex; flex-direction: column; gap: 16px; padding: 20px 28px 22px; }
+  .label { color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: .16em; }
+
+  .route { display: flex; align-items: center; gap: 18px; }
+  .endpoint { flex: 1 1 0; min-width: 0; }
+  .destinations { flex-grow: 1.3; }
+  .endpoint-name { margin-top: 2px; font-size: 30px; font-weight: 700; line-height: 1.2; }
+  .destinations:not([data-count="1"]) .endpoint-name { font-size: 20px; }
+  .destination + .destination { margin-top: 4px; }
+  .full-name { color: var(--ink-soft); font-size: 12px; overflow-wrap: anywhere; }
+  .plane { flex: none; color: var(--accent); transform: rotate(45deg); }
+
+  .items { width: 100%; border-collapse: collapse; }
+  .items th { padding: 0 12px 4px 0; color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-align: left; white-space: nowrap; }
+  .items td { padding: 3px 12px 3px 0; font-size: 16px; font-weight: 700; }
+  .items th:last-child,
+  .items td:last-child { padding-right: 0; }
+  .items .num { text-align: right; white-space: nowrap; }
+  .items .qty { width: 72px; font-weight: 600; }
+  .items .group-row th { padding: 8px 0 0; color: var(--accent); font-size: 12px; letter-spacing: .08em; }
+  .items tbody:first-of-type .group-row th { padding-top: 0; }
+  .empty { color: var(--ink-soft); }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    padding-top: 14px;
+    border-top: 1.5px dashed var(--rule);
+  }
+  .fact-value { font-size: 16px; font-weight: 700; }
+  .fare { font-size: 26px; line-height: 1.2; }
+
+  .status {
+    display: flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1.5px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .stub { display: flex; flex: none; flex-direction: column; width: var(--stub); border-left: 2px dashed #c9ced8; }
+  .stub .band { padding: 0 22px; font-size: 13px; font-weight: 700; letter-spacing: .2em; }
+  .stub-body { display: flex; flex: 1; flex-direction: column; gap: 10px; padding: 16px 22px 18px; }
+  .stub-route { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+  .stub-total { font-size: 34px; font-weight: 700; line-height: 1.15; }
+  .stub-time { color: var(--ink-soft); font-size: 13px; }
+  .barcode {
+    height: 44px;
+    margin-top: auto;
+    background: repeating-linear-gradient(90deg,
+      var(--ink) 0 2px, transparent 2px 4px,
+      var(--ink) 4px 5px, transparent 5px 8px,
+      var(--ink) 8px 11px, transparent 11px 13px,
+      var(--ink) 13px 14px, transparent 14px 17px);
+  }
+  .note { color: var(--ink-soft); font-size: 12px; letter-spacing: .2em; }
+</style>
+</head>
+<body>
+<article id="receipt">
+  <div class="main">
+    <header class="band">
+      <div class="band-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+        <span class="kicker">BOARDING PASS</span>
+        <h1 class="title">打賞登機證</h1>
+      </div>
+      <span class="shop" data-if="shop" data-text="shop"></span>
+    </header>
+
+    <div class="body">
+      <section class="route">
+        <div class="endpoint">
+          <p class="label">FROM・打賞人</p>
+          <p class="endpoint-name" data-fit="18" data-text="payer"></p>
+        </div>
+        <svg class="plane" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+        <div class="endpoint destinations" data-attr="data-count:recipientCount">
+          <p class="label">TO・受賞陪陪</p>
+          <template data-each="recipients">
+            <div class="destination">
+              <p class="endpoint-name" data-fit="16" data-text="short"></p>
+              <p class="full-name" data-if="showFull" data-text="name"></p>
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <table class="items">
+        <thead>
+          <tr><th>ITEM・項目</th><th class="num">QTY・數量</th><th class="num">AMOUNT・金額</th></tr>
+        </thead>
+        <template data-each="groups">
+          <tbody>
+            <tr class="group-row" data-if="multi"><th colspan="3" scope="rowgroup" data-text="short"></th></tr>
+            <template data-each="items">
+              <tr>
+                <td data-text="name"></td>
+                <td class="num qty" data-text="qty"></td>
+                <td class="num" data-text="amount"></td>
+              </tr>
+            </template>
+          </tbody>
+        </template>
+      </table>
+      <p class="empty" data-if="noItems">（無明細）</p>
+
+      <section class="facts">
+        <div>
+          <p class="label">DATE・日期</p>
+          <p class="fact-value" data-text="time.dateWeek"></p>
+        </div>
+        <div data-if="time.time12">
+          <p class="label">TIME・時間</p>
+          <p class="fact-value" data-text="time.time12"></p>
+        </div>
+        <div data-if="total">
+          <p class="label">FARE・票價</p>
+          <p class="fact-value fare" data-fit="16" data-text="total"></p>
+        </div>
+        <div data-if="balance">
+          <p class="label">BALANCE・餘額</p>
+          <p class="fact-value" data-text="balance"></p>
+        </div>
+      </section>
+
+      <p class="status" data-if="status">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        <span data-text="status"></span>
+      </p>
+    </div>
+  </div>
+
+  <aside class="stub">
+    <p class="band">打賞存根</p>
+    <div class="stub-body">
+      <div>
+        <p class="label">FROM → TO</p>
+        <p class="stub-route"><span data-text="payer"></span> → <span data-text="toShortList"></span></p>
+      </div>
+      <div data-if="total">
+        <p class="label">TOTAL・總金額</p>
+        <p class="stub-total" data-fit="18" data-text="total"></p>
+      </div>
+      <time class="stub-time" data-text="time.mdTime" data-attr="datetime:time.iso"></time>
+      <div class="barcode" aria-hidden="true"></div>
+      <p class="note" data-if="note" data-text="note"></p>
+    </div>
+  </aside>
+</article>
+<script src="../_shared/receipt-kit.js"></script>
+</body>
+</html>

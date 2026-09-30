@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>收據樣式預覽</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #f1efea;
+    --surface: #ffffff;
+    --field: #fbfaf8;
+    --text: #1c1a17;
+    --muted: #5c574f;
+    --border: #d6d1c7;
+    --hover: #f3f1ec;
+    --primary: #1c1a17;
+    --primary-text: #ffffff;
+    --focus: #2356d8;
+    --danger: #b3261e;
+    --ok: #1d6a42;
+    --stage: #d9d5cc;
+    --sans: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+    --mono: "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141312;
+      --surface: #1e1d1b;
+      --field: #171615;
+      --text: #ecebe6;
+      --muted: #a8a397;
+      --border: #3a3733;
+      --hover: #292724;
+      --primary: #ecebe6;
+      --primary-text: #141312;
+      --focus: #86a8ff;
+      --danger: #ff8c82;
+      --ok: #7fd4a6;
+      --stage: #0e0d0c;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 var(--sans); }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .app { max-width: 1280px; margin: 0 auto; padding: 28px 16px 48px; }
+  .app-head h1 { margin: 0; font-size: 22px; line-height: 1.3; }
+  .app-head p { margin: 4px 0 0; color: var(--muted); }
+
+  .workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 20px; }
+  @media (min-width: 960px) {
+    .workspace { grid-template-columns: 360px minmax(0, 1fr); align-items: start; }
+    .panel { position: sticky; top: 16px; }
+  }
+
+  .panel { display: grid; gap: 18px; padding: 20px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+  fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+  legend, .field-label { display: block; margin-bottom: 8px; padding: 0; font-weight: 700; }
+
+  .choices { display: grid; gap: 6px; }
+  .choice { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+  .choice:hover { background: var(--hover); }
+  .choice:has(input:checked) { border-color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
+  .choice input { flex: none; margin: 5px 0 0; accent-color: var(--text); }
+  .choice b { display: block; }
+  .choice small { display: block; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+  .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  select, textarea { width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--field); color: var(--text); font: inherit; }
+  select { min-height: 44px; padding: 0 10px; }
+  textarea { min-height: 300px; padding: 12px; font: 13px/1.5 var(--mono); resize: vertical; }
+  textarea[aria-invalid="true"] { border-color: var(--danger); }
+  .error { margin: 6px 0 0; color: var(--danger); font-size: 14px; }
+
+  .btn { min-height: 44px; padding: 0 18px; border: 1px solid var(--primary); border-radius: 10px; background: var(--primary); color: var(--primary-text); font: inherit; font-weight: 700; cursor: pointer; }
+  .btn:hover { opacity: .88; }
+  .btn[aria-disabled="true"] { opacity: .6; cursor: progress; }
+  .status { min-height: 1.6em; margin: 0; color: var(--muted); font-size: 14px; }
+  .status[data-tone="ok"] { color: var(--ok); }
+  .status[data-tone="error"] { color: var(--danger); }
+
+  .stage { display: flex; justify-content: center; padding: 40px 16px; border-radius: 14px; background: var(--stage); overflow: hidden; }
+  .fit { flex: none; transform-origin: top center; filter: drop-shadow(0 14px 22px rgb(0 0 0 / .18)); }
+  .frame { display: block; width: 400px; height: 600px; border: 0; background: transparent; }
+
+  .result { margin-top: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+  .result h2 { margin: 0; font-size: 16px; }
+  .result-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .result a { color: inherit; font-weight: 700; }
+  .result img { display: block; max-width: 100%; height: auto; margin-top: 12px; }
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="app-head">
+    <h1>收據樣式預覽</h1>
+    <p>選樣式、改資料，預覽會即時更新；「產生 PNG」呼叫的是 bot 使用的同一支 <code>POST /render</code>。</p>
+  </header>
+
+  <div class="workspace">
+    <section class="panel" aria-label="樣式與資料">
+      <fieldset>
+        <legend>樣式</legend>
+        <div class="choices" id="templates"></div>
+      </fieldset>
+
+      <div class="controls">
+        <div>
+          <label class="field-label" for="example">範例資料</label>
+          <select id="example"></select>
+        </div>
+        <div>
+          <label class="field-label" for="payment">付款方式</label>
+          <select id="payment"></select>
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label" for="data">收據資料（JSON）</label>
+        <textarea id="data" spellcheck="false" aria-describedby="data-error"></textarea>
+        <p class="error" id="data-error" hidden></p>
+      </div>
+
+      <div>
+        <button type="button" class="btn" id="render">產生 PNG</button>
+        <p class="status" id="status" role="status"></p>
+      </div>
+    </section>
+
+    <div>
+      <section class="stage" id="stage" aria-label="收據預覽">
+        <div class="fit" id="fit">
+          <iframe class="frame" id="frame" title="收據預覽"></iframe>
+        </div>
+      </section>
+
+      <section class="result" id="result" hidden aria-labelledby="result-title">
+        <div class="result-head">
+          <h2 id="result-title">伺服器產生的 PNG</h2>
+          <a id="result-link" href="#" download>下載</a>
+        </div>
+        <img id="result-image" alt="伺服器產生的收據圖">
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+  const EXAMPLES = [
+    { file: 'sample.json', label: '單一陪陪・儲值卡' },
+    { file: 'sample-multi.json', label: '多位陪陪・不同數量' },
+    { file: 'sample-crypto.json', label: '加密貨幣' },
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const frame = $('frame');
+  const editor = $('data');
+
+  let payments = {};
+  let templateId = '';
+  let resultUrl = '';
+
+  async function getJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function say(message, tone = '') {
+    $('status').textContent = message;
+    $('status').dataset.tone = tone;
+  }
+
+  function readData() {
+    try {
+      const data = JSON.parse(editor.value);
+      editor.removeAttribute('aria-invalid');
+      $('data-error').hidden = true;
+      return data;
+    } catch (err) {
+      editor.setAttribute('aria-invalid', 'true');
+      $('data-error').textContent = `JSON 格式錯誤，預覽維持上一版：${err.message}`;
+      $('data-error').hidden = false;
+      return null;
+    }
+  }
+
+  function fitPreview() {
+    const receipt = frame.contentDocument && frame.contentDocument.getElementById('receipt');
+    if (!receipt) return;
+    const { width, height } = receipt.getBoundingClientRect();
+    frame.style.width = `${Math.ceil(width)}px`;
+    frame.style.height = `${Math.ceil(height)}px`;
+
+    const stage = $('stage');
+    const cs = getComputedStyle(stage);
+    const available = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const scale = Math.min(1, available / width);
+    $('fit').style.transform = scale < 1 ? `scale(${scale})` : '';
+    $('fit').style.margin = scale < 1 ? `0 ${(width * scale - width) / 2}px ${height * scale - height}px` : '';
+  }
+
+  function paint() {
+    const data = readData();
+    const win = frame.contentWindow;
+    if (!data || !win || typeof win.renderReceipt !== 'function') return;
+    win.renderReceipt(data, { payments });
+    fitPreview();
+    win.document.fonts.ready.then(() => {
+      win.fitReceipt();
+      fitPreview();
+    });
+    if (data.payment && payments[data.payment]) $('payment').value = data.payment;
+  }
+
+  function selectTemplate(id) {
+    templateId = id;
+    history.replaceState(null, '', `#${id}`);
+    frame.src = `/templates/${encodeURIComponent(id)}/index.html`;
+  }
+
+  async function loadExample(file) {
+    const data = await getJson(`/examples/${file}`);
+    editor.value = JSON.stringify(data, null, 2);
+    paint();
+  }
+
+  function renderTemplateChoices(templates, current) {
+    const list = $('templates');
+    for (const t of templates) {
+      const label = document.createElement('label');
+      label.className = 'choice';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'template';
+      input.value = t.id;
+      input.checked = t.id === current;
+      input.addEventListener('change', () => selectTemplate(t.id));
+      const text = document.createElement('span');
+      const name = document.createElement('b');
+      name.textContent = `${t.code}　${t.name}`;
+      const description = document.createElement('small');
+      description.textContent = t.description;
+      text.append(name, description);
+      label.append(input, text);
+      list.append(label);
+    }
+  }
+
+  async function renderPng() {
+    const button = $('render');
+    if (button.getAttribute('aria-disabled') === 'true') return;
+    const data = readData();
+    if (!data) return say('請先修正 JSON 再產生', 'error');
+
+    button.setAttribute('aria-disabled', 'true');
+    say('產生中…');
+    try {
+      const res = await fetch('/render', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template: templateId, data }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error((body.error && body.error.message) || `HTTP ${res.status}`);
+      }
+      if (resultUrl) URL.revokeObjectURL(resultUrl);
+      resultUrl = URL.createObjectURL(await res.blob());
+      $('result-image').src = resultUrl;
+      $('result-link').href = resultUrl;
+      $('result-link').download = `${templateId}.png`;
+      $('result').hidden = false;
+      say('已產生，可在下方下載', 'ok');
+    } catch (err) {
+      say(`產生失敗：${err.message}`, 'error');
+    } finally {
+      button.removeAttribute('aria-disabled');
+    }
+  }
+
+  async function init() {
+    const [templates, registry] = await Promise.all([
+      getJson('/templates'),
+      getJson('/templates/_shared/payments.json'),
+    ]);
+    payments = registry;
+
+    for (const example of EXAMPLES) $('example').append(new Option(example.label, example.file));
+    for (const [key, p] of Object.entries(payments)) $('payment').append(new Option(p.label, key));
+
+    const fromHash = decodeURIComponent(location.hash.slice(1));
+    const current = templates.some((t) => t.id === fromHash) ? fromHash : templates[0].id;
+    renderTemplateChoices(templates, current);
+
+    await loadExample(EXAMPLES[0].file);
+    selectTemplate(current);
+  }
+
+  let editTimer;
+  editor.addEventListener('input', () => {
+    clearTimeout(editTimer);
+    editTimer = setTimeout(paint, 150);
+  });
+  $('example').addEventListener('change', (e) => loadExample(e.target.value));
+  $('payment').addEventListener('change', (e) => {
+    const data = readData();
+    if (!data) return;
+    data.payment = e.target.value;
+    editor.value = JSON.stringify(data, null, 2);
+    paint();
+  });
+  $('render').addEventListener('click', renderPng);
+  frame.addEventListener('load', paint);
+  new ResizeObserver(fitPreview).observe($('stage'));
+
+  init().catch((err) => say(`載入失敗：${err.message}`, 'error'));
+</script>
+</body>
+</html>

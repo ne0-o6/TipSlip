@@ -1,0 +1,10 @@
+{
+  "stored_value": { "label": "儲值卡", "status": "打賞已使用儲值卡付款" },
+  "wallet": { "label": "錢包扣款", "status": "打賞已由錢包扣款" },
+  "jkopay": { "label": "街口支付", "status": "打賞已使用街口支付付款" },
+  "ecpay": { "label": "綠界支付", "status": "打賞已使用綠界支付付款" },
+  "atm": { "label": "匯款 / ATM 虛擬帳號", "status": "打賞已透過匯款 / ATM 虛擬帳號付款" },
+  "ctbc_cardless": { "label": "中信無卡", "status": "打賞已使用中信無卡付款" },
+  "crypto": { "label": "加密貨幣", "status": "打賞已使用加密貨幣付款", "totalFormat": "{amount} USDT" },
+  "usd_transfer": { "label": "美金轉帳", "status": "打賞已透過美金轉帳付款", "totalFormat": "US${amount}" }
+}

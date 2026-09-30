@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C 橫式票根</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+  html, body { margin: 0; background: transparent; }
+  [hidden] { display: none !important; }
+  p, h1 { margin: 0; }
+
+  #receipt {
+    --paper: #f7f3ea;
+    --ink: #1d2433;
+    --ink-soft: #5f6675;
+    --rule: #cfc5b2;
+    --line: #e4dccb;
+    --accent: #b3261e;
+    --stub: 250px;
+    --notch: 12px;
+    --notch-x: calc(100% - var(--stub) + 1px);
+    --sans: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+    --mono: "IBM Plex Mono", Consolas, "Noto Sans TC", "Microsoft JhengHei", monospace;
+
+    display: flex;
+    width: 840px;
+    border-radius: 14px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 14px/1.55 var(--sans);
+    mask-image:
+      radial-gradient(circle var(--notch) at var(--notch-x) 0, transparent calc(var(--notch) - .5px), #000 var(--notch)),
+      radial-gradient(circle var(--notch) at var(--notch-x) 100%, transparent calc(var(--notch) - .5px), #000 var(--notch));
+    mask-composite: intersect;
+  }
+
+  .main { display: flex; flex: 1; flex-direction: column; gap: 16px; min-width: 0; padding: 26px 30px 24px; }
+
+  .head { display: flex; align-items: center; gap: 14px; }
+  .shop { font-size: 28px; line-height: 1; }
+  .divider { align-self: stretch; width: 1px; background: #d9d0bf; }
+  .title { font-size: 17px; font-weight: 700; line-height: 1.4; letter-spacing: .2em; }
+  .subtitle { color: var(--ink-soft); font: 10px/1.4 var(--mono); letter-spacing: .34em; }
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    padding: 5px 12px 5px 10px;
+    border: 1.5px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    white-space: nowrap;
+  }
+
+  .label { color: var(--ink-soft); font-size: 12px; letter-spacing: .14em; }
+  .payer { display: flex; align-items: baseline; gap: 14px; padding: 10px 0; border-block: 1.5px dashed var(--rule); }
+  .payer > .label { flex: none; }
+  .payer-name { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+
+  .items { width: 100%; border-collapse: collapse; }
+  .items th { padding: 0 12px 6px 0; color: var(--ink-soft); font-size: 12px; font-weight: 400; letter-spacing: .14em; text-align: left; white-space: nowrap; }
+  .items td { padding: 8px 12px 8px 0; border-top: 1px solid var(--line); vertical-align: top; }
+  .items tr + tr td { padding-top: 0; border-top: 0; }
+  .items th:last-child,
+  .items td:last-child { padding-right: 0; }
+  .items .to { width: 100%; font-weight: 700; overflow-wrap: anywhere; }
+  .items .name { white-space: nowrap; }
+  .items .num { font-family: var(--mono); text-align: right; white-space: nowrap; }
+  .items .amount { font-weight: 700; }
+  .empty { color: var(--ink-soft); }
+
+  .stub {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    width: var(--stub);
+    box-sizing: border-box;
+    padding: 26px 26px 24px;
+    border-left: 2px dashed var(--rule);
+  }
+  .total-amount { margin-top: 2px; font: 700 40px/1.1 var(--mono); letter-spacing: -.01em; }
+  .balance { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; color: var(--ink-soft); font-size: 13px; }
+  .balance-amount { font-family: var(--mono); white-space: nowrap; }
+
+  .stub-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; margin-top: auto; padding-top: 24px; }
+  .time { display: flex; flex-direction: column; font: 12px/1.6 var(--mono); }
+  .note { margin-top: 6px; color: var(--ink-soft); font-size: 11px; letter-spacing: .2em; }
+  .stamp {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    box-sizing: border-box;
+    border: 4px double var(--accent);
+    border-radius: 50%;
+    color: var(--accent);
+    line-height: 1.15;
+    opacity: .8;
+    transform: rotate(-14deg);
+  }
+  .stamp b { font-size: 13px; letter-spacing: .06em; }
+  .stamp small { padding-left: .26em; font: 700 9px/1.3 var(--mono); letter-spacing: .26em; }
+</style>
+</head>
+<body>
+<article id="receipt">
+  <div class="main">
+    <header class="head">
+      <p class="shop" data-if="shop" data-text="shop"></p>
+      <span class="divider" data-if="shop" aria-hidden="true"></span>
+      <div>
+        <h1 class="title">打賞收據</h1>
+        <p class="subtitle">TIP RECEIPT</p>
+      </div>
+      <p class="status" data-if="status">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        <span data-text="status"></span>
+      </p>
+    </header>
+
+    <div class="payer" data-if="payer">
+      <span class="label">打賞人</span>
+      <span class="payer-name" data-text="payer"></span>
+    </div>
+
+    <table class="items">
+      <thead>
+        <tr><th>受賞陪陪</th><th>項目</th><th class="num">數量</th><th class="num">金額</th></tr>
+      </thead>
+      <template data-each="groups">
+        <tbody>
+          <template data-each="items">
+            <tr>
+              <td class="to"><span data-if="$first" data-text="to"></span></td>
+              <td class="name" data-text="name"></td>
+              <td class="num" data-text="qty"></td>
+              <td class="num amount" data-text="amount"></td>
+            </tr>
+          </template>
+        </tbody>
+      </template>
+    </table>
+    <p class="empty" data-if="noItems">（無明細）</p>
+  </div>
+
+  <aside class="stub">
+    <p class="label">總金額</p>
+    <p class="total-amount" data-fit="20" data-text="total"></p>
+    <div class="balance" data-if="balance">
+      <span>扣款後餘額</span>
+      <span class="balance-amount" data-text="balance"></span>
+    </div>
+
+    <div class="stub-foot">
+      <div>
+        <time class="time" data-attr="datetime:time.iso">
+          <span data-text="time.dateWeek"></span>
+          <span data-text="time.time12"></span>
+        </time>
+        <p class="note" data-if="note" data-text="note"></p>
+      </div>
+      <div class="stamp" aria-hidden="true"><b>已付款</b><small>PAID</small></div>
+    </div>
+  </aside>
+</article>
+<script src="../_shared/receipt-kit.js"></script>
+</body>
+</html>

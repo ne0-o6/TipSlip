@@ -1,0 +1,19 @@
+{
+  "shop": "𝓐𝓢",
+  "payment": "stored_value",
+  "payer": "@Лиса🦊",
+  "items": [
+    {
+      "to": "@𝓐𝓢.店長 | 星野 -專屬客服/ON AIR!",
+      "toShort": "星野",
+      "name": "客製打賞",
+      "qty": 1,
+      "amount": 120
+    }
+  ],
+  "unit": "ASD",
+  "total": 120,
+  "balance": 1470,
+  "time": "2026-09-30T05:24:00+08:00",
+  "note": "感謝您的支持"
+}
